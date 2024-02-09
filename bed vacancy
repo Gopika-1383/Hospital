@@ -1,0 +1,40 @@
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.IOException;
+
+class patientaddmission{// check for the availability of beds(default bed count =100)
+    void bedchecking(){
+        try{
+            File file = new File("C:\\Users\\admin\\OneDrive\\Desktop\\bedcount.txt");
+            Scanner myReader = new Scanner(file);
+            while(myReader.hasNextLine()){
+                String data = myReader.nextLine();
+                int i=Integer.parseInt(data);
+                if(i<100) {//conditional statement
+                    System.out.println("Beds are available");
+                    i = i + 1;//increment once the addmission is done
+                    System.out.println("Admission number : ");
+                    System.out.println(i);
+                    String s=Integer.toString(i);
+                    FileWriter myWriter = new FileWriter("C:\\Users\\admin\\OneDrive\\Desktop\\bedcount.txt");
+                    myWriter.write(s);
+                    myWriter.close();
+                    System.out.println("bed is successfully allotted");
+                }
+            }
+            myReader.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("Error");
+            e.printStackTrace();
+        }
+        catch(IOException e){
+            System.out.println("Error");
+            e.printStackTrace();
+        }
+
+} }
