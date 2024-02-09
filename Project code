@@ -1,0 +1,356 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.net.SocketOption;
+import java.sql.*;
+
+class patientaddmission{// check for the availability of beds(default bed count =100)
+    void bedchecking(){
+        try{
+            File file = new File("C:\\Users\\admin\\OneDrive\\Desktop\\bedcount.txt");
+            Scanner myReader = new Scanner(file);
+            while(myReader.hasNextLine()){
+                String data = myReader.nextLine();
+                int i=Integer.parseInt(data);
+                if(i<100) {//conditional statement
+                    System.out.println("Beds are available");
+                    i = i + 1;//increment once the addmission is done
+                    System.out.println("Admission number : ");
+                    System.out.println(i);
+                    String s=Integer.toString(i);
+                    FileWriter myWriter = new FileWriter("C:\\Users\\admin\\OneDrive\\Desktop\\bedcount.txt");
+                    myWriter.write(s);
+                    myWriter.close();
+                    System.out.println("bed is successfully allotted");
+                }
+            }
+            myReader.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("Error");
+            e.printStackTrace();
+        }
+        catch(IOException e){
+            System.out.println("Error");
+            e.printStackTrace();
+        }
+
+} }
+class billing{
+    void details(){
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the patient's name:");
+        String name = sc.nextLine();
+        System.out.print("Enter age");
+        int age = Integer.parseInt(sc.nextLine());
+        System.out.print("Enter blood group");
+        String bgroup = sc.nextLine();
+        System.out.print("Enter the physician's name:");
+        String phyname = sc.nextLine();
+        //enter database code for retrieving doctors fee
+        System.out.print("Entering into additional expenses");
+        int b = 1;
+        String[] addmed = new String[14];//initialize array-1 (to store the name of medicines)
+        int times[] = new int[10];// initialize array -2(to store quantity)
+        int index = 0;
+        double cost = 0;
+        while (b == 1) {// looping statement
+            System.out.println("1.ECG");
+            System.out.println("2.X-ray");
+            System.out.println("3.CT Scan");
+            System.out.println("4.bathing kit");
+            System.out.println("5.ICU");
+            System.out.println("6.Bed (Normal)");
+            System.out.println("7.room (Normal)");
+            System.out.println("8.room (VIP)");
+            System.out.println("enter choice");
+            int c = sc.nextInt();
+            if (c == 1) {
+                System.out.print("how many?");
+                int d = sc.nextInt();
+                cost = cost + 300 * d;
+                addmed[index] = "ECG";
+                times[index] = d;
+                index += 1;
+
+            } else if (c == 2) {
+                System.out.print("how many?");
+                int d = sc.nextInt();
+                cost = cost + 200 * d;
+                addmed[index] = "x ray";
+                times[index] = d;
+                index += 1;
+            } else if (c == 3) {
+                System.out.print("how many?");
+                int d = sc.nextInt();
+                cost = cost + 2500 * d;
+                addmed[index] = "CT Scan";
+                times[index] = d;
+                index += 1;
+            } else if (c == 4) {
+                System.out.print("how many?");
+                int d = sc.nextInt();
+                cost = cost + 250 * d;
+                addmed[index] = "bathing kit";
+                times[index] = d;
+                index += 1;
+            } else if (c == 5) {
+                System.out.print("how many days?");
+                int d = sc.nextInt();
+                cost = cost + 12000 * d;
+                addmed[index] = "ICU (days)";
+                times[index] = d;
+                index += 1;
+            } else if (c == 6) {
+                System.out.print("how many days?");
+                int d = sc.nextInt();
+                cost = cost + 8000 * d;
+                addmed[index] = "bed (days)";
+                times[index] = d;
+                index += 1;
+
+            } else if (c == 7) {
+                System.out.print("how many?");
+                int d = sc.nextInt();
+                cost = cost + 14000 * d;
+                addmed[index] = "room (days)";
+                times[index] = d;
+                index += 1;
+
+            } else if (c == 8) {
+                System.out.print("how many?");
+                int d = sc.nextInt();
+                cost = cost + 22000 * d;
+                addmed[index] = "VIP ROOM (days)";
+                times[index] = d;
+                index += 1;
+
+            }
+            System.out.print("Do you want to continue? (0/1)");
+            b = sc.nextInt();
+
+            if (b == 0) {
+                int fee = 0;
+                String url = "jdbc:mysql://localhost:3306/mansahaidatabase";//database connectivity
+                String username = "root";
+                String pwd = "Omganapati@1";
+
+                try {
+                    //Class.forName("com.mysql.cj.jdbc.Driver"); (optional statement)
+                    Connection connection = DriverManager.getConnection(url, username, pwd);
+                    Statement statement = connection.createStatement();//get the doctor's consultation cost from database "stored"
+                    ResultSet resultSet = statement.executeQuery("select * from docnames where name ='" + phyname + "'");
+                    while (resultSet.next()) {
+                        fee = resultSet.getInt(2);
+
+                    }
+                    connection.close();
+                } catch (Exception e) {
+                    System.out.println(e);
+
+                }
+
+                System.out.println("LILLY BLOOMS CARE");//display of bill
+                System.out.println("patient name: " + name);
+                System.out.println("age: " + age);
+                System.out.println("Doctor cost: " + fee);
+                System.out.println("contents  " + "   " + "quantity");
+                for (int i = 0; i < index; i++) {
+                    System.out.println(addmed[i] + "    " + times[i]);
+                }
+                cost = cost + fee;
+                System.out.println("The sum is :  " + cost);
+                System.out.println("15% Gst to be included");
+                double gstcost = (cost * 0.15) + cost;
+                double profit= 0.1*cost;
+                System.out.print("The Grand total is  :  " + gstcost+"\n");
+                System.out.println("the file of your bill is created\n\n");
+                try {
+                            //create a file copy of bill in bill.txt
+                            FileWriter myWriter = new FileWriter("C:\\Users\\admin\\OneDrive\\Desktop\\bill.txt");
+                            myWriter.write("LILLY BLOOMS CARE\n\n");
+                            myWriter.write("patient name : "+name+"\n\n"+"Blood group : "+bgroup+"\n\nDoctor name : "+phyname+"\n\n"+"doctor cost : "+fee+"\n\n");
+                            myWriter.write("contents         quantity\n\n");
+                            myWriter.write("__________________________\n\n");
+                            for (int i = 0; i < index; i++) {
+                                String tada=Integer.toString(times[i]);
+                                myWriter.write(addmed[i] + "       " + tada+"\n\n");
+                                myWriter.write("__________________________\n\n");
+                            }
+                            String  stringcost=String.valueOf(cost);
+                            myWriter.write("The total is  :" + stringcost+"\n\n");
+                            String  stringgstcost=String.valueOf(gstcost);
+                            myWriter.write("15% GST include total is  :" + stringgstcost+"\n\n");
+                            myWriter.close();
+                            System.out.println("created bill could be, viewed in bill.txt");
+                            //adding profit from the bill to the net profit of the day
+                            File file = new File("C:\\Users\\admin\\OneDrive\\Desktop\\profit.txt");
+                            Scanner Readerprofit = new Scanner(file);
+                            String data = Readerprofit.nextLine();
+                            double value=Double.parseDouble(data);
+                            System.out.println("profit is about to add to the overall day profit\n\n");
+                            value = value + profit ;
+                            String s=String.valueOf(value);
+                            FileWriter Writerprofit = new FileWriter("C:\\Users\\admin\\OneDrive\\Desktop\\profit.txt");
+                            Writerprofit.write(s);
+                            Writerprofit.close();
+                            System.out.println("Successfully completed and saved into file(to generate daily sales report!!)\n");
+                        }
+                    catch (IOException e) {
+                            System.out.println("Error");
+                            e.printStackTrace();
+                                              }
+                        }
+                    }
+
+
+                }
+
+
+             }
+class discharge {
+    void patientdischarge() {//to store patient's details during discharge
+        int fee = 0;
+        String url = "jdbc:mysql://localhost:3306/mansahaidatabase";
+        String username = "root";
+        String pwd = "Omganapati@1";
+
+        try {
+            Scanner sc = new Scanner(System.in);
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection(url, username, pwd);
+            Statement statement = connection.createStatement();
+            System.out.print("Enter the patient's name:");
+            String name = sc.nextLine();
+            System.out.print("Enter age");
+            int age = Integer.parseInt(sc.nextLine());
+            System.out.print("Enter DOB in  (YYYY-MM-DD)");
+            String Dob = sc.nextLine();
+            System.out.print("Enter the physician's name:");
+            String docname = sc.nextLine();
+            System.out.print("Enter the attendent's name:");
+            String attendent = sc.nextLine();
+            System.out.print("Enter the Father's name :");
+            String Fname = sc.nextLine();
+            statement.executeUpdate("insert into patientdata values('" + name + "' , '" + Fname + "' , '" + Dob + "' , " + age + ", '" + docname + "' , '" + attendent + " ')");
+            System.out.println("Successfully added");
+            connection.close();
+            try {//once discharged the vacant bedcount reduces by 1
+                File file = new File("C:\\Users\\admin\\OneDrive\\Desktop\\bedcount.txt");
+                Scanner myReader = new Scanner(file);
+                while (myReader.hasNextLine()) {
+                    String data = myReader.nextLine();
+                    int i = Integer.parseInt(data);
+                    if (i > 0) {
+                        System.out.println("ready to discharge!! have a nice healthy and happy life dear!!");
+                        i = i - 1;
+                        String s = Integer.toString(i);
+                        FileWriter myWriter = new FileWriter("C:\\Users\\admin\\OneDrive\\Desktop\\bedcount.txt");
+                        myWriter.write(s);
+                        myWriter.close();
+                        System.out.println("Successfully completed and saved to database");//data stored in Mysql
+                    }
+                }
+                myReader.close();
+            } catch (FileNotFoundException e) {
+                System.out.println("Error");
+                e.printStackTrace();
+            } catch (IOException e) {
+                System.out.println("Error");
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+
+        }
+
+    }
+}
+class profitincrement {//daily profit added to database
+    void addprofit() {// to find profit from the bill (10% is hospital profit)
+        String url = "jdbc:mysql://localhost:3306/mansahaidatabase";
+        String username = "root";
+        String pwd = "Omganapati@1";
+
+        try {
+            Scanner sc = new Scanner(System.in);
+            File file = new File("C:\\Users\\admin\\OneDrive\\Desktop\\profit.txt");
+            Scanner Readerprofit = new Scanner(file);
+            //while(Readerprofit.hasNextLine()){
+            String data = Readerprofit.nextLine();
+            double i = Double.parseDouble(data);
+            Readerprofit.close();
+            Connection connection = DriverManager.getConnection(url, username, pwd);
+            Statement statement = connection.createStatement();
+            System.out.print("Enter DOW in  (YYYY-MM-DD)");//current date
+            String DOW = sc.nextLine();
+            Double netpr=0.0;
+            Double totalpr=0.0;
+            ResultSet resulSet =statement.executeQuery("select sum(profit) from profitdata");
+            while(resulSet.next()){
+                netpr=resulSet.getDouble(1);
+            }
+            i=i-netpr;//automatily calcuated profit from profit.txt file
+            statement.executeUpdate("insert into Profitdata values('" + DOW + "' , " + i + " )");
+            System.out.println("Successfully added");
+            connection.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Error");
+        } catch (Exception e) {
+            System.out.println(e);
+
+        }
+    }
+}
+    public class Lillyblossoms {
+
+        public static void main(String[] args) {//main program
+            Scanner sc = new Scanner(System.in);
+            int counter = 1;
+            while (counter == 1) {//menu driven program
+                //consists of 4 modules
+            System.out.println("1.patient addmission");
+            System.out.println("2.generate your bill");
+            System.out.println("3.store patient record in Corigans");
+            System.out.println("4.store profit data datewise");
+            System.out.println("hey choose your option!!");
+            int a = sc.nextInt();
+                if (a == 1) {
+                    patientaddmission obj = new patientaddmission();//object creation
+                    obj.bedchecking();
+                    System.out.println("do you want to continue??(0/1)");
+                    counter= sc.nextInt();
+                } else if (a == 2) {
+                    billing bill = new billing();//object creation
+                    bill.details();
+                    System.out.println("do you want to continue??(0/1)");
+                    counter= sc.nextInt();
+                } else if (a == 3) {
+                    discharge dis = new discharge();//object creation
+                    dis.patientdischarge();
+                    System.out.println("do you want to continue??(0/1)");
+                    counter= sc.nextInt();
+                }
+                else if (a==4){
+                    profitincrement profidb=new profitincrement();//object creation
+                    profidb.addprofit();
+                    System.out.println("do you want to continue??(0/1)");
+                    counter= sc.nextInt();
+                }
+                    else {
+                    System.out.println("your choice is not listed!!");
+                    System.out.println("do you want to continue??(0/1)");
+                    counter= sc.nextInt();
+                }
+
+            }
+        }
+    }
