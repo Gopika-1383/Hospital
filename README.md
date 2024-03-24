@@ -1,0 +1,1 @@
+A JDBC-powered text-based healthcare administration system (MYSQL). It has modules to track revenue, vacant beds, patient information.Designed with a basic understanding of JDBC connectivity and file connections in mind
